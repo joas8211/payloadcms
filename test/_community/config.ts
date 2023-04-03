@@ -29,5 +29,12 @@ export default buildConfig({
         text: 'example post',
       },
     });
+
+    await payload.delete({
+      collection: postsSlug,
+      where: {
+        text: { equals: 'example post' },
+      },
+    });
   },
 });
