@@ -8,6 +8,7 @@
 export interface Config {
   collections: {
     posts: Post;
+    accessGroups: AccessGroup;
     users: User;
   };
   globals: {
@@ -17,6 +18,13 @@ export interface Config {
 export interface Post {
   id: string;
   text?: string;
+  accessGroup?: string | AccessGroup;
+  createdAt: string;
+  updatedAt: string;
+}
+export interface AccessGroup {
+  id: string;
+  available?: boolean;
   createdAt: string;
   updatedAt: string;
 }

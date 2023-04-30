@@ -2,13 +2,13 @@ import { buildConfig } from '../buildConfig';
 import { PostsCollection, postsSlug } from './collections/Posts';
 import { MenuGlobal } from './globals/Menu';
 import { devUser } from '../credentials';
-import { MediaCollection } from './collections/Media';
+import { AccessGroupCollection } from './collections/AccessGroup';
 
 export default buildConfig({
   // ...extend config here
   collections: [
     PostsCollection,
-    MediaCollection,
+    AccessGroupCollection,
     // ...add more collections here
   ],
   globals: [
@@ -25,10 +25,18 @@ export default buildConfig({
       },
     });
 
+    const accessGroup = await payload.create({
+      collection: 'accessGroups',
+      data: {
+        available: true,
+      },
+    });
+
     await payload.create({
       collection: postsSlug,
       data: {
         text: 'example post',
+        accessGroup: accessGroup.id,
       },
     });
   },

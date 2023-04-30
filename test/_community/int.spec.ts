@@ -2,7 +2,6 @@ import mongoose from 'mongoose';
 import payload from '../../src';
 import { initPayloadTest } from '../helpers/configHelpers';
 import { devUser } from '../credentials';
-import { postsSlug } from './collections/Posts';
 
 require('isomorphic-fetch');
 
@@ -45,29 +44,14 @@ describe('_Community Tests', () => {
   // use the tests below as a guide
   // --__--__--__--__--__--__--__--__--__
 
-  it('local API example', async () => {
-    const newPost = await payload.create({
-      collection: postsSlug,
-      data: {
-        text: 'LOCAL API EXAMPLE',
-      },
+  it('user finds post', async () => {
+    const { docs: [user] } = await payload.find({ collection: 'users' });
+    const result = await payload.find({
+      collection: 'posts',
+      where: { text: { equals: 'example post' } },
+      user,
+      overrideAccess: false,
     });
-
-    expect(newPost.text).toEqual('LOCAL API EXAMPLE');
-  });
-
-  it('rest API example', async () => {
-    const newPost = await fetch(`${apiUrl}/${postsSlug}`, {
-      method: 'POST',
-      headers: {
-        ...headers,
-        Authorization: `JWT ${jwt}`,
-      },
-      body: JSON.stringify({
-        text: 'REST API EXAMPLE',
-      }),
-    }).then((res) => res.json());
-
-    expect(newPost.doc.text).toEqual('REST API EXAMPLE');
+    expect(result).toEqual(expect.objectContaining({ totalDocs: 1 }));
   });
 });

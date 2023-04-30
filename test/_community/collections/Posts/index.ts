@@ -1,5 +1,5 @@
 import type { CollectionConfig } from '../../../../src/collections/config/types';
-import { mediaSlug } from '../Media';
+import { accessGroupSlug } from '../AccessGroup';
 
 export const postsSlug = 'posts';
 
@@ -11,13 +11,17 @@ export const PostsCollection: CollectionConfig = {
       type: 'text',
     },
     {
-      name: 'associatedMedia',
-      type: 'upload',
-      relationTo: mediaSlug,
-      access: {
-        create: () => true,
-        update: () => false,
-      },
+      name: 'accessGroup',
+      type: 'relationship',
+      hidden: true,
+      relationTo: accessGroupSlug,
     },
   ],
+  access: {
+    read: () => ({
+      'accessGroup.available': {
+        equals: true,
+      },
+    }),
+  },
 };
