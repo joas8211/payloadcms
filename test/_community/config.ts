@@ -16,6 +16,10 @@ export default buildConfig({
     // ...add more globals here
   ],
 
+  routes: {
+    admin: '/admin%20panel',
+  },
+
   onInit: async (payload) => {
     await payload.create({
       collection: 'users',
