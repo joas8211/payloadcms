@@ -14,3 +14,6 @@ export const docLevelAccessSlug = 'doc-level-access'
 export const hiddenFieldsSlug = 'hidden-fields'
 
 export const hiddenAccessSlug = 'hidden-access'
+
+export const relationFromSlug = 'relation-from'
+export const relationToSlug = 'relation-to'

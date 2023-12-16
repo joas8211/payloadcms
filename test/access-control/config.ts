@@ -2,7 +2,7 @@ import type { FieldAccess } from '../../packages/payload/src/fields/config/types
 
 import { buildConfigWithDefaults } from '../buildConfigWithDefaults'
 import { devUser } from '../credentials'
-import { firstArrayText, secondArrayText } from './shared'
+import { firstArrayText, relationFromSlug, relationToSlug, secondArrayText } from './shared'
 import {
   docLevelAccessSlug,
   hiddenAccessSlug,
@@ -389,6 +389,33 @@ export default buildConfigWithDefaults({
           hidden: true,
         },
       ],
+    },
+    {
+      slug: relationFromSlug,
+      fields: [
+        {
+          name: 'relation',
+          type: 'relationship',
+          relationTo: relationToSlug,
+          hidden: true,
+        },
+      ],
+      access: {
+        read: async ({ req: { payload }, id }) => {
+          const {
+            docs: [relationTo],
+          } = await payload.find({
+            collection: relationToSlug,
+            limit: 1,
+          })
+          if (!relationTo) return false
+          else return { relation: { equals: relationTo.id } }
+        },
+      },
+    },
+    {
+      slug: relationToSlug,
+      fields: [],
     },
   ],
   onInit: async (payload) => {

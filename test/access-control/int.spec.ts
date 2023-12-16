@@ -9,6 +9,8 @@ import {
   firstArrayText,
   hiddenAccessSlug,
   hiddenFieldsSlug,
+  relationFromSlug,
+  relationToSlug,
   relyOnRequestHeadersSlug,
   restrictedSlug,
   restrictedVersionsSlug,
@@ -442,6 +444,28 @@ describe('Access Control', () => {
       })
 
       expect(docs).toHaveLength(1)
+    })
+
+    it('should not throw when using findById with relation query constraint', async () => {
+      const relationTo = await payload.create({
+        collection: relationToSlug,
+        data: {},
+      })
+
+      const relationFrom = await payload.create({
+        collection: relationFromSlug,
+        data: {
+          relation: relationTo.id,
+        },
+      })
+
+      const resultingDoc = await payload.findByID({
+        collection: relationFromSlug,
+        overrideAccess: false,
+        id: relationFrom.id,
+      })
+
+      expect(resultingDoc).toBeTruthy()
     })
   })
 })
