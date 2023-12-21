@@ -1,36 +1,12 @@
 import payload from '../../packages/payload/src'
-import { devUser } from '../credentials'
 import { initPayloadTest } from '../helpers/configHelpers'
 import { postsSlug } from './collections/Posts'
 
 require('isomorphic-fetch')
 
-let apiUrl
-let jwt
-
-const headers = {
-  'Content-Type': 'application/json',
-}
-const { email, password } = devUser
 describe('_Community Tests', () => {
-  // --__--__--__--__--__--__--__--__--__
-  // Boilerplate test setup/teardown
-  // --__--__--__--__--__--__--__--__--__
   beforeAll(async () => {
-    const { serverURL } = await initPayloadTest({ __dirname, init: { local: false } })
-    apiUrl = `${serverURL}/api`
-
-    const response = await fetch(`${apiUrl}/users/login`, {
-      body: JSON.stringify({
-        email,
-        password,
-      }),
-      headers,
-      method: 'post',
-    })
-
-    const data = await response.json()
-    jwt = data.token
+    await initPayloadTest({ __dirname, init: { local: false } })
   })
 
   afterAll(async () => {
@@ -39,34 +15,35 @@ describe('_Community Tests', () => {
     }
   })
 
-  // --__--__--__--__--__--__--__--__--__
-  // You can run tests against the local API or the REST API
-  // use the tests below as a guide
-  // --__--__--__--__--__--__--__--__--__
-
-  it('local API example', async () => {
-    const newPost = await payload.create({
+  test('pagination returns correct result after deletion with transaction', async () => {
+    const {
+      docs: [user],
+    } = await payload.find({ collection: 'users', limit: 1 })
+    const post = await payload.create({
       collection: postsSlug,
-      data: {
-        text: 'LOCAL API EXAMPLE',
-      },
+      data: {},
     })
-
-    expect(newPost.text).toEqual('LOCAL API EXAMPLE')
-  })
-
-  it('rest API example', async () => {
-    const newPost = await fetch(`${apiUrl}/${postsSlug}`, {
-      method: 'POST',
-      headers: {
-        ...headers,
-        Authorization: `JWT ${jwt}`,
-      },
-      body: JSON.stringify({
-        text: 'REST API EXAMPLE',
-      }),
-    }).then((res) => res.json())
-
-    expect(newPost.doc.text).toEqual('REST API EXAMPLE')
+    await payload.delete({
+      collection: postsSlug,
+      id: post.id,
+      // Deletion is done with user set, so pending transaction might be the
+      // reason why this is not working with PostgreSQL.
+      user,
+    })
+    const result = await payload.find({
+      collection: postsSlug,
+    })
+    expect(result).toEqual({
+      docs: [],
+      hasNextPage: false,
+      hasPrevPage: false,
+      limit: 10,
+      nextPage: null,
+      page: 1,
+      pagingCounter: 1,
+      prevPage: null,
+      totalDocs: 0,
+      totalPages: 1,
+    })
   })
 })
