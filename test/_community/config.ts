@@ -1,37 +1,21 @@
 import { buildConfigWithDefaults } from '../buildConfigWithDefaults'
-import { devUser } from '../credentials'
-import { MediaCollection } from './collections/Media'
 import { PostsCollection, postsSlug } from './collections/Posts'
-import { MenuGlobal } from './globals/Menu'
 
 export default buildConfigWithDefaults({
-  // ...extend config here
-  collections: [
-    PostsCollection,
-    MediaCollection,
-    // ...add more collections here
-  ],
-  globals: [
-    MenuGlobal,
-    // ...add more globals here
-  ],
-  graphQL: {
-    schemaOutputFile: './test/_community/schema.graphql',
-  },
-
+  collections: [PostsCollection],
   onInit: async (payload) => {
-    await payload.create({
-      collection: 'users',
+    const root = await payload.create({
+      collection: postsSlug,
       data: {
-        email: devUser.email,
-        password: devUser.password,
+        text: 'root',
       },
     })
 
     await payload.create({
       collection: postsSlug,
       data: {
-        text: 'example post',
+        text: 'sub',
+        parent: root.id,
       },
     })
   },
